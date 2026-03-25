@@ -1,5 +1,3 @@
-// This is the boilerplate code given for you
-// You can modify this code
 // Product data
 const products = [
   { id: 1, name: "Product 1", price: 10 },
@@ -11,28 +9,91 @@ const products = [
 
 // DOM elements
 const productList = document.getElementById("product-list");
+const cartList = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
 
-// Render product list
+// ✅ Load cart from sessionStorage
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
+// ✅ Render product list
 function renderProducts() {
+  productList.innerHTML = "";
+
   products.forEach((product) => {
     const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
+
+    li.innerHTML = `
+      ${product.name} - $${product.price}
+      <button class="add-to-cart-btn" data-id="${product.id}">
+        Add to Cart
+      </button>
+    `;
+
     productList.appendChild(li);
   });
 }
 
-// Render cart list
-function renderCart() {}
+// ✅ Render cart
+function renderCart() {
+  cartList.innerHTML = "";
 
-// Add item to cart
-function addToCart(productId) {}
+  cart.forEach((item) => {
+    const li = document.createElement("li");
 
-// Remove item from cart
-function removeFromCart(productId) {}
+    li.innerHTML = `
+      ${item.name} - $${item.price}
+      <button class="remove-btn" data-id="${item.id}">Remove</button>
+    `;
 
-// Clear cart
-function clearCart() {}
+    cartList.appendChild(li);
+  });
+}
 
-// Initial render
+// ✅ Add to cart
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+
+  cart.push(product);
+
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+
+  renderCart();
+}
+
+// ✅ Remove from cart
+function removeFromCart(productId) {
+  cart = cart.filter(item => item.id !== productId);
+
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+
+  renderCart();
+}
+
+// ✅ Clear cart
+function clearCart() {
+  cart = [];
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+
+// ✅ Event Delegation (IMPORTANT)
+productList.addEventListener("click", function (e) {
+  if (e.target.classList.contains("add-to-cart-btn")) {
+    const id = Number(e.target.getAttribute("data-id"));
+    addToCart(id);
+  }
+});
+
+cartList.addEventListener("click", function (e) {
+  if (e.target.classList.contains("remove-btn")) {
+    const id = Number(e.target.getAttribute("data-id"));
+    removeFromCart(id);
+  }
+});
+
+// ✅ Clear cart button
+clearCartBtn.addEventListener("click", clearCart);
+
+// ✅ Initial render (Persistence works here)
 renderProducts();
 renderCart();
